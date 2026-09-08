@@ -219,6 +219,13 @@ A restart resets the service, and `startupGraceMs` then suppresses
 announcements briefly: a sound played immediately after a restart is
 deliberately silent, not broken.
 
+`preview.png` in the README is drawn, not captured, so it carries no desktop
+content. Regenerate it after a UI change with:
+
+```bash
+python3 tools/mkpreview.py
+```
+
 If you develop from a directory outside `~/.config/omarchy/plugins/` and
 symlink it in, note that edits will not hot-reload either way — the shell
 watches the plugin path with `inotifywait -r`, which does not descend through
