@@ -270,7 +270,7 @@ BarWidget {
         Text {
           width: parent.width
           textFormat: Text.PlainText
-          text: "by " + (root.meta.author || "andi")
+          text: "by " + (root.meta.author || "iboard")
             + (root.meta.license ? "  ·  " + root.meta.license : "")
           color: root.bar ? root.bar.foreground : Color.foreground
           opacity: 0.7

@@ -114,7 +114,7 @@ def dialog(d, X, Y, DW, draw=True):
     text(cx, y, "Sound Source  1.0.0", fn_title); y += 22
     text(cx, y, "Names the application that just", fn_cap, fill=DIM); y += 16
     text(cx, y, "started playing audio, in a popup.", fn_cap, fill=DIM); y += 20
-    text(cx, y, "by andi  ·  Apache-2.0", fn_cap, fill=DIM); y += 18
+    text(cx, y, "by iboard  ·  Apache-2.0", fn_cap, fill=DIM); y += 18
     text(cx, y, "github.com/iboard/sound-source", fn_cap, fill=BORD); y += 14
 
     return (y + 20) - Y
