@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "andi.sound-source",
+  "name": "Sound Source",
+  "version": "1.0.0",
+  "author": "andi",
+  "license": "Apache-2.0",
+  "description": "Names the application that just started playing audio, in a popup.",
+  "kinds": [
+    "service",
+    "panel",
+    "bar-widget"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "service": "Service.qml",
+    "panel": "SoundPopup.qml",
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Sound Source",
+    "description": "Toggle the popup; right-click for setup",
+    "category": "Status",
+    "allowMultiple": false,
+    "defaultSection": "center"
+  }
+}
