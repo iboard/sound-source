@@ -170,11 +170,26 @@ layerrule = blur, io.github.iboard.sound-source
 
 ### The bar icon
 
-A plain `BarIconButton`, not the `BarIndicator` the stock toggles use. A
-`BarIndicator` hides itself while inactive unless the indicator area is
-hovered — right for a status light, wrong for a switch: once off there would
-be nothing left to click to turn it back on. So this one stays drawn and just
-dims, showing a muted speaker when off.
+The icon behaves like the stock hide-when-inactive indicators: with
+announcements off it is concealed and its slot collapses, and it fades back in
+dimmed — showing a muted speaker, and clickable — on the same hover that
+reveals `Dnd`, `NightLight` and the rest. Hovering the icon itself holds that
+reveal open, so it cannot slide away from the pointer before the click lands.
+
+It is not listed in `omarchy.indicators`' `items`, and cannot be: that widget
+resolves every entry to a file in the shell's packaged `indicators/`
+directory, so a plugin id there loads nothing. Instead the widget finds the
+live `omarchy.indicators` instance in the bar's `moduleSlots` and reads its
+`revealInactiveIndicators`, which joins the group from the plugin's own slot.
+Put the icon in the same section as the indicators (`--after
+omarchy.indicators`, as in [Install](#install)) so the hover that reveals them
+covers it too.
+
+Concealing is conditional on that host existing. On a bar with no indicators
+widget there would be no hover to bring the icon back, and a switch nothing
+can click is a switch stuck off — so there the icon stays drawn and only dims.
+An open setup dialog holds it out as well: the card anchors to the bar slot,
+which must not collapse underneath it.
 
 The icon reflects `muted` as read back from `shell.json`, not a local copy, so
 it survives a restart and stays correct if the value is edited by hand.

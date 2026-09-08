@@ -3,10 +3,15 @@
 //   left click   toggle the announcements on/off
 //   right click  the setup dialog
 //
-// A plain BarIconButton, not the BarIndicator the stock toggles use. A
-// BarIndicator hides itself while inactive unless the indicator area is
-// hovered, which is right for a status light and wrong for a switch -- once
-// off, there would be nothing left to click to turn it back on.
+// The icon sits with the stock hide-when-inactive indicators: while
+// announcements are off it is concealed and its slot collapses, and it comes
+// back -- dimmed and clickable -- on the same hover that reveals the rest of
+// them.
+//
+// It cannot be listed in `omarchy.indicators`' own `items`: that widget
+// resolves each entry to a file in the shell's packaged `indicators/`
+// directory, so a plugin id there loads nothing. Borrowing that widget's
+// reveal state is how a plugin joins the group from its own bar slot.
 
 import QtQuick
 import Quickshell
@@ -58,28 +63,76 @@ BarWidget {
     function onSetupRequested() { root.dialogOpen = true }
   }
 
-  implicitWidth: button.implicitWidth
-  implicitHeight: button.implicitHeight
+  // The live omarchy.indicators widget on this bar, whose
+  // `revealInactiveIndicators` decides when inactive icons are shown. Read
+  // out of the host's slot list rather than held, so it rebinds when the bar
+  // is rebuilt; null when the bar carries no indicators widget.
+  readonly property var indicatorsHost: {
+    var slots = bar ? bar.moduleSlots : null
+    if (!slots) return null
+    for (var i = 0; i < slots.length; i++) {
+      var slot = slots[i]
+      if (slot && slot.moduleName === "omarchy.indicators" && slot.activeItem
+          && "revealInactiveIndicators" in slot.activeItem) return slot.activeItem
+    }
+    return null
+  }
 
-  BarIconButton {
-    id: button
+  readonly property bool indicatorsRevealed: !!indicatorsHost && indicatorsHost.revealInactiveIndicators === true
+
+  // Concealed only while a reveal is actually reachable. With no indicators
+  // widget on the bar there is no hover that would bring the icon back, and a
+  // switch nothing can click on is a switch stuck off -- so there it keeps the
+  // old behaviour and merely dims. An open dialog holds the icon out too: the
+  // card anchors to this slot, and collapsing the slot under it would drag the
+  // card sideways.
+  readonly property bool iconConcealed: root.muted && !!indicatorsHost
+    && !root.indicatorsRevealed && !root.dialogOpen
+
+  implicitWidth: iconArea.implicitWidth
+  implicitHeight: iconArea.implicitHeight
+
+  // Collapses along the bar while concealed, the way the indicators' own
+  // inactive block does, so the bar closes the gap instead of holding an empty
+  // slot. Clipped, because the icon keeps painting -- it fades rather than
+  // vanishing -- inside an area that is by then zero-sized.
+  Item {
+    id: iconArea
     anchors.centerIn: parent
 
-    text: root.muted ? SoundSource.GLYPH_MUTED : SoundSource.GLYPH_SPEAKER
-    tooltipText: (root.muted ? "Sound source popups off" : "Sound source popups on")
-      + "  ·  right-click to set up"
-    // Dimmed while off, matching how the stock indicators read as inactive,
-    // but still drawn so it stays clickable.
-    dimmed: root.muted
-    active: !root.muted
-    useActiveColor: false
+    implicitWidth: root.vertical ? button.implicitWidth : (root.iconConcealed ? 0 : button.implicitWidth)
+    implicitHeight: root.vertical ? (root.iconConcealed ? 0 : button.implicitHeight) : button.implicitHeight
+    width: implicitWidth
+    height: implicitHeight
+    clip: true
 
-    onPressed: function(mouseButton) {
-      if (mouseButton === Qt.RightButton) {
-        root.dialogOpen = !root.dialogOpen
-        return
+    BarIconButton {
+      id: button
+      anchors.centerIn: parent
+
+      text: root.muted ? SoundSource.GLYPH_MUTED : SoundSource.GLYPH_SPEAKER
+      tooltipText: (root.muted ? "Sound source popups off" : "Sound source popups on")
+        + "  ·  right-click to set up"
+      // Dimmed while off and revealed, gone while off and not: the same two
+      // states the stock indicators show. WidgetButton turns `concealed` into
+      // opacity 0 with the same fade it uses for them.
+      dimmed: root.muted
+      concealed: root.iconConcealed
+      interactive: !root.iconConcealed
+      active: !root.muted
+      useActiveColor: false
+      // Hovering the icon holds the whole group revealed, so it cannot slide
+      // out from under the pointer on the way to a click.
+      maintainIndicatorReveal: true
+      revealHost: root.indicatorsHost
+
+      onPressed: function(mouseButton) {
+        if (mouseButton === Qt.RightButton) {
+          root.dialogOpen = !root.dialogOpen
+          return
+        }
+        if (root.service) root.service.toggleMuted()
       }
-      if (root.service) root.service.toggleMuted()
     }
   }
 
