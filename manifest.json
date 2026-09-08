@@ -1,10 +1,12 @@
 {
   "schemaVersion": 1,
-  "id": "andi.sound-source",
+  "id": "io.github.iboard.sound-source",
   "name": "Sound Source",
   "version": "1.0.0",
   "author": "andi",
   "license": "Apache-2.0",
+  "repository": "https://github.com/iboard/sound-source",
+  "homepage": "https://github.com/iboard/sound-source",
   "description": "Names the application that just started playing audio, in a popup.",
   "kinds": [
     "service",

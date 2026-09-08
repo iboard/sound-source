@@ -20,7 +20,7 @@ process to keep running.
 
 ```bash
 omarchy plugin add https://github.com/iboard/sound-source.git --enable --yes
-omarchy bar put andi.sound-source --after omarchy.indicators
+omarchy bar put io.github.iboard.sound-source --after omarchy.indicators
 omarchy restart shell
 ```
 
@@ -75,8 +75,8 @@ otherwise its `plugins[]` entry in `~/.config/omarchy/shell.json`. Both are
 read, so moving the icon on or off the bar does not reset anything.
 
 ```bash
-omarchy bar set andi.sound-source position center
-omarchy bar set andi.sound-source duration 4000 --json
+omarchy bar set io.github.iboard.sound-source position center
+omarchy bar set io.github.iboard.sound-source duration 4000 --json
 ```
 
 | Key | Default | Meaning |
@@ -156,6 +156,12 @@ for; wrong for a popup whose whole job is to be noticed.
 The card is placed with explicit `x`/`y` rather than anchors: an anchor left
 over from a previous position would fight the new one, and QML resolves that
 by warning and ignoring rather than by moving the card.
+
+Its layer-shell namespace is the plugin id, so Hyprland rules can target it:
+
+```
+layerrule = blur, io.github.iboard.sound-source
+```
 
 ### The bar icon
 

@@ -26,7 +26,7 @@ Item {
   property var shell: null
   property var manifest: null
 
-  readonly property string pluginId: "andi.sound-source"
+  readonly property string pluginId: "io.github.iboard.sound-source"
 
   readonly property var defaultSettings: ({
     "duration": 2000,        // how long the popup stays, ms

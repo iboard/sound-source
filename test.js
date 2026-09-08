@@ -59,22 +59,22 @@ ok("device not stream",S.isPlaybackStream({isStream:false,isSink:true}), false);
 
 console.log("settings");
 const d={duration:2000,repeatMs:1500,ignore:[]};
-ok("defaults when absent", S.settingsFrom({plugins:[{id:"other"}]},"andi.sound-source",d), d);
-ok("entry overrides", S.settingsFrom({plugins:[{id:"andi.sound-source",duration:5000}]},"andi.sound-source",d).duration, 5000);
-ok("null ignored",    S.settingsFrom({plugins:[{id:"andi.sound-source",duration:null}]},"andi.sound-source",d).duration, 2000);
-ok("no config",       S.settingsFrom(null,"andi.sound-source",d), d);
+ok("defaults when absent", S.settingsFrom({plugins:[{id:"other"}]},"io.github.iboard.sound-source",d), d);
+ok("entry overrides", S.settingsFrom({plugins:[{id:"io.github.iboard.sound-source",duration:5000}]},"io.github.iboard.sound-source",d).duration, 5000);
+ok("null ignored",    S.settingsFrom({plugins:[{id:"io.github.iboard.sound-source",duration:null}]},"io.github.iboard.sound-source",d).duration, 2000);
+ok("no config",       S.settingsFrom(null,"io.github.iboard.sound-source",d), d);
 
 console.log("entry settings location");
-const barCfg={bar:{layout:{left:[],center:[{id:"andi.sound-source",duration:9000}],right:[]}},plugins:[]};
-const plugCfg={bar:{layout:{left:[],center:[],right:[]}},plugins:[{id:"andi.sound-source",duration:7000}]};
-const bothCfg={bar:{layout:{left:[],center:[{id:"andi.sound-source",duration:9000}],right:[]}},
-                plugins:[{id:"andi.sound-source",duration:7000}]};
-ok("reads bar layout entry",  S.entrySettings(barCfg,"andi.sound-source"), {duration:9000});
-ok("reads plugins entry",     S.entrySettings(plugCfg,"andi.sound-source"), {duration:7000});
-ok("bar layout wins",         S.entrySettings(bothCfg,"andi.sound-source"), {duration:9000});
-ok("absent -> empty",         S.entrySettings({plugins:[]},"andi.sound-source"), {});
-ok("id stripped",             S.entrySettings(barCfg,"andi.sound-source").id, undefined);
-ok("merged over defaults",    S.settingsFrom(barCfg,"andi.sound-source",{duration:2000,muted:false}),
+const barCfg={bar:{layout:{left:[],center:[{id:"io.github.iboard.sound-source",duration:9000}],right:[]}},plugins:[]};
+const plugCfg={bar:{layout:{left:[],center:[],right:[]}},plugins:[{id:"io.github.iboard.sound-source",duration:7000}]};
+const bothCfg={bar:{layout:{left:[],center:[{id:"io.github.iboard.sound-source",duration:9000}],right:[]}},
+                plugins:[{id:"io.github.iboard.sound-source",duration:7000}]};
+ok("reads bar layout entry",  S.entrySettings(barCfg,"io.github.iboard.sound-source"), {duration:9000});
+ok("reads plugins entry",     S.entrySettings(plugCfg,"io.github.iboard.sound-source"), {duration:7000});
+ok("bar layout wins",         S.entrySettings(bothCfg,"io.github.iboard.sound-source"), {duration:9000});
+ok("absent -> empty",         S.entrySettings({plugins:[]},"io.github.iboard.sound-source"), {});
+ok("id stripped",             S.entrySettings(barCfg,"io.github.iboard.sound-source").id, undefined);
+ok("merged over defaults",    S.settingsFrom(barCfg,"io.github.iboard.sound-source",{duration:2000,muted:false}),
                               {duration:9000,muted:false});
 ok("position normalizes",     S.normalizePosition("bottom-center"), "bottom-center");
 ok("bad position -> center",  S.normalizePosition("nowhere"), "center");

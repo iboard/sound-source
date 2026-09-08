@@ -1,4 +1,4 @@
-// The popup card for andi.sound-source.
+// The popup card for io.github.iboard.sound-source.
 //
 // A `panel` entry point rather than a window inside Service.qml: services are
 // created into the shell's non-visual host (`Item { visible: false }`), and a
@@ -44,7 +44,7 @@ Item {
       if (duration > 0) hideTimer.restart()
       else hideTimer.stop()
     } catch (e) {
-      console.warn("andi.sound-source: bad popup payload:", e)
+      console.warn("io.github.iboard.sound-source: bad popup payload:", e)
     }
   }
 
@@ -112,7 +112,7 @@ Item {
       visible: root.opened
       anchors { top: true; bottom: true; left: true; right: true }
       color: "transparent"
-      WlrLayershell.namespace: "andi-sound-source"
+      WlrLayershell.namespace: "io.github.iboard.sound-source"
       WlrLayershell.layer: WlrLayer.Overlay
       WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
       exclusionMode: ExclusionMode.Ignore

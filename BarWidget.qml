@@ -1,4 +1,4 @@
-// Bar icon for andi.sound-source.
+// Bar icon for io.github.iboard.sound-source.
 //
 //   left click   toggle the announcements on/off
 //   right click  the setup dialog
@@ -16,7 +16,7 @@ import "SoundSource.js" as SoundSource
 
 BarWidget {
   id: root
-  moduleName: "andi.sound-source"
+  moduleName: "io.github.iboard.sound-source"
 
   readonly property var service: bar?.shell?.serviceFor(root.moduleName)
   readonly property bool muted: service ? service.muted === true : false
@@ -33,6 +33,12 @@ BarWidget {
   // list rather than their own click.
   readonly property var knownApps: service ? service.knownApps : []
   readonly property var ignoreList: service ? (service.settings.ignore || []) : []
+
+  // Manifests in the wild set repository and homepage to the same URL; take
+  // whichever is present. Shown without the scheme, which is noise in a
+  // caption-sized line.
+  readonly property string repoUrl: String(root.meta.repository || root.meta.homepage || "")
+  readonly property string repoLabel: root.repoUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
 
   function isIgnored(name) {
     return SoundSource.ignoreContains(root.ignoreList, name)
@@ -270,6 +276,34 @@ BarWidget {
           opacity: 0.7
           font.family: Style.font.family
           font.pixelSize: Style.font.caption
+        }
+
+        // Repository link, also straight from the manifest. Hidden rather
+        // than shown broken if a fork drops the field.
+        Text {
+          id: repoLink
+          width: parent.width
+          visible: root.repoUrl !== ""
+          textFormat: Text.PlainText
+          text: root.repoLabel
+          color: repoMouse.containsMouse
+            ? Color.accent
+            : (root.bar ? root.bar.foreground : Color.foreground)
+          opacity: repoMouse.containsMouse ? 1 : 0.7
+          font.family: Style.font.family
+          font.pixelSize: Style.font.caption
+          font.underline: repoMouse.containsMouse
+          elide: Text.ElideRight
+
+          MouseArea {
+            id: repoMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            // Util.execArgv, not execDetached: the URL comes out of a manifest
+            // file, so it must never reach a shell as text to be re-tokenized.
+            onClicked: Util.execArgv(["xdg-open", root.repoUrl])
+          }
         }
       }
     }
