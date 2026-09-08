@@ -251,11 +251,10 @@ announcements briefly: a sound played immediately after a restart is
 deliberately silent, not broken.
 
 `preview.png` in the README is drawn, not captured, so it carries no desktop
-content. Regenerate it after a UI change with:
-
-```bash
-python3 tools/mkpreview.py
-```
+content — and it is not generated from the QML, so a UI change does not update
+it. The script that drew it is not kept in the repository: it was a one-off, and
+a generator that has to be edited to match every change is a second UI to
+maintain. Redraw it deliberately when the real one has moved far enough away.
 
 If you develop from a directory outside `~/.config/omarchy/plugins/` and
 symlink it in, note that edits will not hot-reload either way — the shell
