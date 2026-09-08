@@ -37,6 +37,22 @@ The second line puts the icon next to the stock indicator toggles. Put it
 wherever you like with `omarchy bar put` / `omarchy bar move`; the popup works
 with the icon anywhere, or with no icon at all.
 
+## Remove
+
+```bash
+omarchy plugin remove io.github.iboard.sound-source --yes
+omarchy restart shell
+```
+
+That disables the plugin, unloads it from `omarchy-shell` and deletes the
+checkout — the git repo upstream is untouched, and the command asks before
+doing any of it unless `--yes` is passed.
+
+It leaves the bar layout entry behind in `~/.config/omarchy/shell.json`. A
+placement pointing at a plugin that is gone loads nothing, so it is harmless,
+but the line can be deleted by hand along with the plugin's stored settings,
+which live in that same entry.
+
 ## Using it
 
 The icon on the bar:
