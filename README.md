@@ -7,6 +7,11 @@ turns it on and off, and right-clicking it opens a setup dialog.
 For the "something pinged and I don't know what" problem: a background app
 plays a notification sound and nothing on screen says which one it was.
 
+![The popup and the setup dialog](preview.png)
+
+*Rendered mockup of the plugin's own UI, not a desktop screenshot — same
+colours and controls, illustrative app names.*
+
 ## Requirements
 
 - Omarchy 4.x (the Quickshell-based `omarchy-shell`)
