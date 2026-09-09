@@ -39,8 +39,16 @@ Item {
     "labels": ({})           // { "raw name": "Nicer name" }
   })
 
+  // Values written this session, until the pushed barConfig catches up. See
+  // setOption: the shell delivers a plugin's barConfig one config change late,
+  // so without these a write would read back as the value it replaced.
+  property var pendingSettings: ({})
+
+  // `barConfig` is shell.json's bar subtree, pushed on every config change. It
+  // is the only view of the persisted entry a plugin gets: PluginShellApi
+  // exposes no whole-config property.
   readonly property var settings: SoundSource.settingsFrom(
-    shell ? shell.shellConfig : null, pluginId, defaultSettings)
+    shell ? shell.barConfig : null, pluginId, defaultSettings, pendingSettings)
 
   readonly property var effectiveLabels: SoundSource.mergedLabels(settings.labels)
 
@@ -113,7 +121,7 @@ Item {
   // in. updateEntryInline replaces the entry with exactly what it is handed,
   // so persisting the merged settings would bake every default into the file.
   readonly property var rawSettings: SoundSource.entrySettings(
-    shell ? shell.shellConfig : null, pluginId)
+    shell ? shell.barConfig : null, pluginId)
 
   // One writer for every persisted option: merge onto the keys already in
   // shell.json and hand that to updateEntryInline, which writes to whichever
@@ -122,9 +130,18 @@ Item {
   function setOption(key, value) {
     if (!shell) return
 
+    // Merge onto the pending writes as well as the persisted entry: with a
+    // stale barConfig, rawSettings can still be missing the previous write.
     var next = {}
     for (var k in rawSettings) next[k] = rawSettings[k]
+    for (var p in pendingSettings) next[p] = pendingSettings[p]
     next[String(key)] = value
+
+    var pend = {}
+    for (var q in pendingSettings) pend[q] = pendingSettings[q]
+    pend[String(key)] = value
+    pendingSettings = pend
+
     shell.updateEntryInline(pluginId, next)
   }
 
@@ -136,9 +153,9 @@ Item {
     setOption("duration", isFinite(v) ? Math.max(0, Math.round(v)) : 2000)
   }
 
-  // `muted` is a binding on shellConfig and only updates once the write has
-  // been persisted and reloaded, so the caller is told the value we asked for
-  // rather than the one still in effect.
+  // setMuted records the value in pendingSettings, so `muted` reflects it
+  // straight away rather than waiting for the write to be persisted and pushed
+  // back. Returning `want` keeps the answer right either way.
   function toggleMuted() {
     var want = !muted
     setMuted(want)

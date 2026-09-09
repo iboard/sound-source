@@ -76,6 +76,19 @@ ok("absent -> empty",         S.entrySettings({plugins:[]},"io.github.iboard.sou
 ok("id stripped",             S.entrySettings(barCfg,"io.github.iboard.sound-source").id, undefined);
 ok("merged over defaults",    S.settingsFrom(barCfg,"io.github.iboard.sound-source",{duration:2000,muted:false}),
                               {duration:9000,muted:false});
+// What PluginShellApi actually hands a plugin: shell.json's `bar` subtree,
+// with the layout at the top level rather than under `bar`.
+const apiCfg={layout:{left:[],center:[{id:"io.github.iboard.sound-source",muted:true,duration:9000}],right:[]}};
+ok("reads shell barConfig shape", S.entrySettings(apiCfg,"io.github.iboard.sound-source"), {muted:true,duration:9000});
+ok("barConfig muted reaches settings",
+                              S.settingsFrom(apiCfg,"io.github.iboard.sound-source",{duration:2000,muted:false}).muted, true);
+ok("barConfig absent -> empty", S.entrySettings({layout:{left:[],center:[],right:[]}},"io.github.iboard.sound-source"), {});
+
+// A just-written value the pushed barConfig has not caught up with yet.
+ok("overrides beat entry",    S.settingsFrom(apiCfg,"io.github.iboard.sound-source",{muted:false},{muted:false}).muted, false);
+ok("overrides beat defaults", S.settingsFrom(null,"io.github.iboard.sound-source",{duration:2000},{duration:4000}).duration, 4000);
+ok("no overrides is unchanged", S.settingsFrom(apiCfg,"io.github.iboard.sound-source",{muted:false}).muted, true);
+
 ok("position normalizes",     S.normalizePosition("bottom-center"), "bottom-center");
 ok("bad position -> center",  S.normalizePosition("nowhere"), "center");
 

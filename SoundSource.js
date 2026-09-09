@@ -184,7 +184,11 @@ function entrySettings(shellConfig, pluginId) {
   var want = String(pluginId)
   var found = null
 
-  var layout = cfg.bar && cfg.bar.layout ? cfg.bar.layout : {}
+  // The shell hands a plugin `barConfig`, which is shell.json's `bar` subtree,
+  // so the layout is at cfg.layout. A whole shell.json (cfg.bar.layout) is still
+  // accepted: the tests use that shape, and it is what a caller would expect.
+  var layout = cfg.bar && cfg.bar.layout ? cfg.bar.layout
+    : (cfg.layout ? cfg.layout : {})
   var sections = ["left", "center", "right"]
   for (var s = 0; s < sections.length; s++) {
     var arr = layout[sections[s]]
@@ -211,12 +215,17 @@ function entrySettings(shellConfig, pluginId) {
   return out
 }
 
-function settingsFrom(shellConfig, pluginId, defaults) {
+// `overrides` wins over the persisted entry: the shell pushes a plugin's
+// barConfig one config change behind, so a value just written is not in the
+// entry yet. The writer keeps it here until the pushed config catches up.
+function settingsFrom(shellConfig, pluginId, defaults, overrides) {
   var out = {}
   for (var d in defaults) out[d] = defaults[d]
 
   var entry = entrySettings(shellConfig, pluginId)
   for (var k in entry) out[k] = entry[k]
+
+  for (var o in (overrides || {})) out[o] = overrides[o]
   return out
 }
 
