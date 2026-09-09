@@ -26,9 +26,16 @@ BarWidget {
   readonly property var service: bar?.shell?.serviceFor(root.moduleName)
   readonly property bool muted: service ? service.muted === true : false
 
-  // Read from the registry rather than kept in sync by hand, so the About
-  // block cannot drift from the manifest.
+  // Read from the manifest rather than kept in sync by hand, so the About
+  // block cannot drift from it.
+  //
+  // The shell injects the full manifest into every plugin declaring kind
+  // "service", which is the only route a bar widget has to it: the widget's
+  // `shell` is a capability-scoped PluginShellApi with no pluginRegistry. The
+  // registry lookup stays as a fallback for a host that does expose one.
   readonly property var meta: {
+    var fromService = root.service ? root.service.manifest : null
+    if (fromService) return fromService
     var reg = bar?.shell?.pluginRegistry
     var installed = reg ? reg.installedPlugins : null
     return installed && installed[root.moduleName] ? installed[root.moduleName] : ({})
@@ -44,6 +51,12 @@ BarWidget {
   // caption-sized line.
   readonly property string repoUrl: String(root.meta.repository || root.meta.homepage || "")
   readonly property string repoLabel: root.repoUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
+
+  // The marketplace listing is addressed by plugin id, so this follows a fork
+  // to its own listing rather than pointing back here. moduleName is that id.
+  readonly property string marketplaceUrl:
+    "https://omarchyplugins.com/plugin.html?id=" + root.moduleName
+  readonly property string marketplaceLabel: "omarchyplugins.com"
 
   function isIgnored(name) {
     return SoundSource.ignoreContains(root.ignoreList, name)
@@ -356,6 +369,31 @@ BarWidget {
             // Util.execArgv, not execDetached: the URL comes out of a manifest
             // file, so it must never reach a shell as text to be re-tokenized.
             onClicked: Util.execArgv(["xdg-open", root.repoUrl])
+          }
+        }
+
+        // Marketplace listing. Always shown: the URL is built from the plugin
+        // id, which every manifest has, rather than an optional field.
+        Text {
+          id: marketplaceLink
+          width: parent.width
+          textFormat: Text.PlainText
+          text: root.marketplaceLabel
+          color: marketplaceMouse.containsMouse
+            ? Color.accent
+            : (root.bar ? root.bar.foreground : Color.foreground)
+          opacity: marketplaceMouse.containsMouse ? 1 : 0.7
+          font.family: Style.font.family
+          font.pixelSize: Style.font.caption
+          font.underline: marketplaceMouse.containsMouse
+          elide: Text.ElideRight
+
+          MouseArea {
+            id: marketplaceMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: Util.execArgv(["xdg-open", root.marketplaceUrl])
           }
         }
       }
