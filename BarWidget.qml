@@ -47,10 +47,14 @@ BarWidget {
   readonly property var ignoreList: service ? (service.settings.ignore || []) : []
 
   // Manifests in the wild set repository and homepage to the same URL; take
-  // whichever is present. Shown without the scheme, which is noise in a
-  // caption-sized line.
+  // whichever is present.
   readonly property string repoUrl: String(root.meta.repository || root.meta.homepage || "")
-  readonly property string repoLabel: root.repoUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
+  // Labelled by owner rather than by URL: shorter, and a fork credits itself.
+  readonly property string repoLabel: {
+    var owner = root.repoUrl.match(/^https?:\/\/[^\/]+\/([^\/]+)/)
+    return owner ? "@" + owner[1]
+      : root.repoUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
+  }
 
   // The marketplace listing is addressed by plugin id, so this follows a fork
   // to its own listing rather than pointing back here. moduleName is that id.
@@ -314,12 +318,24 @@ BarWidget {
         Text {
           width: parent.width
           textFormat: Text.PlainText
-          text: (root.meta.name || "Sound Source") + "  " + (root.meta.version || "")
+          text: root.meta.name || "Sound Source"
           color: root.bar ? root.bar.foreground : Color.foreground
           font.family: Style.font.family
           font.bold: true
           font.pixelSize: Style.font.subtitle
           elide: Text.ElideRight
+        }
+
+        // Version on its own line, so the running build is readable at a glance.
+        Text {
+          width: parent.width
+          visible: String(root.meta.version || "") !== ""
+          textFormat: Text.PlainText
+          text: String(root.meta.version || "")
+          color: root.bar ? root.bar.foreground : Color.foreground
+          opacity: 0.7
+          font.family: Style.font.family
+          font.pixelSize: Style.font.caption
         }
 
         Text {
